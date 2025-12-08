@@ -5,7 +5,6 @@
 ![Hardware](https://img.shields.io/badge/Hardware-Raspberry_Pi-green?style=for-the-badge&logo=raspberrypi)
 ![Status](https://img.shields.io/badge/Status-Prototype_Complete-success?style=for-the-badge)
 
-> [cite_start]**Phase 1 Project** for B.Tech in Electronics & Communication Engineering at **KMEA Engineering College**, affiliated with **APJ Abdul Kalam Technological University**[cite: 1065, 1073].
 
 ---
 
