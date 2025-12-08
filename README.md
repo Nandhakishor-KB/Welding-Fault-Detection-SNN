@@ -9,17 +9,17 @@
 ---
 
 ## 📌 Project Overview
-This project implements an **Edge AI system** capable of detecting welding faults in real-time by analyzing acoustic signatures (welding sounds). [cite_start]Unlike traditional Deep Learning models (ANN/CNN), this project utilizes **Spiking Neural Networks (SNNs)**—specifically Leaky Integrate-and-Fire (LIF) neurons—to process temporal audio data efficiently [cite: 1432-1436].
+This project implements an **Edge AI system** capable of detecting welding faults in real-time by analyzing acoustic signatures (welding sounds). Unlike traditional Deep Learning models (ANN/CNN), this project utilizes **Spiking Neural Networks (SNNs)**—specifically Leaky Integrate-and-Fire (LIF) neurons—to process temporal audio data efficiently .
 
-[cite_start]The system is optimized for deployment on **Embedded Linux (Raspberry Pi)** environments, offering a low-power, high-efficiency solution for **Industry 4.0** Quality Assurance[cite: 1208, 1224].
+The system is optimized for deployment on **Embedded Linux (Raspberry Pi)** environments, offering a low-power, high-efficiency solution for **Industry 4.0** Quality Assurance.
 
 ---
 
 ## 🚀 Key Features
-🧠 Neuromorphic Computing:** Uses event-driven SNNs (LIF Neurons) to mimic biological neural processing for high efficiency[cite: 1203].
-🎧 Acoustic Analysis:** Detects defects based on welding sound variations, eliminating the need for visual inspection or destructive testing[cite: 1205].
-⚡ Real-Time Inference:** Optimized for low-latency performance on constrained hardware (Raspberry Pi)[cite: 1208].
-📊 High Accuracy:** Achieved **91.48% overall accuracy** on the test dataset[cite: 1632].
+🧠 Neuromorphic Computing:** Uses event-driven SNNs (LIF Neurons) to mimic biological neural processing for high efficiency.
+🎧 Acoustic Analysis:** Detects defects based on welding sound variations, eliminating the need for visual inspection or destructive testing.
+⚡ Real-Time Inference:** Optimized for low-latency performance on constrained hardware (Raspberry Pi).
+📊 High Accuracy:** Achieved **91.48% overall accuracy** on the test dataset.
 
 ---
 
