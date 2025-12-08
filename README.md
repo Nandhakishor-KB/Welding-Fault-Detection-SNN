@@ -16,7 +16,7 @@ This project implements an **Edge AI system** capable of detecting welding fault
 ---
 
 ## 🚀 Key Features
-***🧠 Neuromorphic Computing:** Uses event-driven SNNs (LIF Neurons) to mimic biological neural processing for high efficiency[cite: 1203].
+**🧠 Neuromorphic Computing:** Uses event-driven SNNs (LIF Neurons) to mimic biological neural processing for high efficiency[cite: 1203].
 * [cite_start]**🎧 Acoustic Analysis:** Detects defects based on welding sound variations, eliminating the need for visual inspection or destructive testing[cite: 1205].
 * [cite_start]**⚡ Real-Time Inference:** Optimized for low-latency performance on constrained hardware (Raspberry Pi)[cite: 1208].
 * [cite_start]**📊 High Accuracy:** Achieved **91.48% overall accuracy** on the test dataset[cite: 1632].
