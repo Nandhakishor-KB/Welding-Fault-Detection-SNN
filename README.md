@@ -46,8 +46,8 @@ The system achieved an **overall accuracy of 96.36%** using the Intel Robotic We
 | **Excessive Penetration** | 0.949 | 0.931 | 0.940 |
 | **Burn-through** | 0.934 | 0.922 | 0.928 |
 
-- **Macro Average F1:** 0.961 [cite: 261]
-- **Weighted Average F1:** 0.963 [cite: 261]
+- **Macro Average F1:** 0.961 
+- **Weighted Average F1:** 0.963 
 
 ---
 
