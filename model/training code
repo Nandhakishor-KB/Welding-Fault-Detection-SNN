@@ -1,1 +1,105 @@
+import torch, torchaudio, os, pandas as pd
+import torch.nn as nn
+import snntorch as snn
+from snntorch import surrogate
+from torch.utils.data import Dataset, DataLoader, WeightedRandomSampler, random_split
+import torch.optim as optim
 
+device = "cuda" if torch.cuda.is_available() else "cpu"
+DATA_ROOT = "/kaggle/input/welding-defect"
+
+class WeldingFinalDataset(Dataset):
+    def __init__(self, metadata):
+        self.df = metadata
+        self.spec_transform = torchaudio.transforms.MelSpectrogram(
+            sample_rate=16000, n_mels=64, n_fft=1024, hop_length=512)
+    def __len__(self): return len(self.df)
+    def __getitem__(self, idx):
+        row = self.df.iloc[idx]
+        path = os.path.join(DATA_ROOT, row['file_path'])
+        audio, _ = torchaudio.load(path)
+        if audio.shape[1] > 80000: audio = audio[:, :80000]
+        else: audio = torch.nn.functional.pad(audio, (0, 80000 - audio.shape[1]))
+        audio = audio / (torch.max(torch.abs(audio)) + 1e-6)
+        spec = self.spec_transform(audio)
+        return torch.log(spec + 1e-6).squeeze(0), row['label']
+
+df = pd.read_csv(os.path.join(DATA_ROOT, "metadata.csv"))
+df['label'] = df['class'].map({name: i for i, name in enumerate(sorted(df['class'].unique()))})
+full_ds = WeldingFinalDataset(df)
+train_size = int(0.8 * len(full_ds))
+train_ds, val_ds = random_split(full_ds, [train_size, len(full_ds)-train_size])
+train_labels = [df.iloc[i]['label'] for i in train_ds.indices]
+weights = 1.0 / torch.bincount(torch.tensor(train_labels)).float()
+sampler = WeightedRandomSampler(weights[train_labels], len(train_labels))
+train_loader = DataLoader(train_ds, batch_size=32, sampler=sampler)
+val_loader = DataLoader(val_ds, batch_size=32)
+
+class WeldingStableSNN(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)
+        self.bn1 = nn.BatchNorm2d(32)
+        self.lif1 = snn.Leaky(beta=0.9, spike_grad=surrogate.fast_sigmoid(slope=25), init_hidden=True)
+        self.pool1 = nn.MaxPool2d(2)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
+        self.bn2 = nn.BatchNorm2d(64)
+        self.lif2 = snn.Leaky(beta=0.9, spike_grad=surrogate.fast_sigmoid(slope=25), init_hidden=True)
+        self.pool2 = nn.MaxPool2d(2)
+        self.drop = nn.Dropout(0.25)
+        self.fc1 = nn.Linear(39936, 5) 
+        self.lif3 = snn.Leaky(beta=0.9, spike_grad=surrogate.fast_sigmoid(slope=25), init_hidden=True)
+
+    def forward(self, x):
+        x = x.unsqueeze(1) 
+        
+        self.lif1.mem = self.lif1.init_leaky().to(x.device)
+        self.lif2.mem = self.lif2.init_leaky().to(x.device)
+        self.lif3.mem = self.lif3.init_leaky().to(x.device)
+
+        cur1 = self.pool1(self.bn1(self.conv1(x)))
+        spk1 = self.lif1(cur1)
+        cur2 = self.pool2(self.bn2(self.conv2(spk1)))
+        spk2 = self.lif2(cur2)
+        cur3 = self.fc1(self.drop(spk2.reshape(spk2.size(0), -1)))
+        spk3 = self.lif3(cur3)
+        return self.lif3.mem
+
+model = WeldingStableSNN().to(device)
+optimizer = optim.Adam(model.parameters(), lr=5e-4)
+scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.5)
+criterion = nn.CrossEntropyLoss()
+
+best_val_acc = 0.0
+for epoch in range(30):
+    model.train()
+    correct, total = 0, 0
+    for data, targets in train_loader:
+        data, targets = data.to(device), targets.to(device)
+        output = model(data)
+        loss = criterion(output, targets)
+        optimizer.zero_grad(); loss.backward(); optimizer.step()
+        _, pred = output.max(1); correct += (pred == targets).sum().item(); total += targets.size(0)
+    
+    scheduler.step()
+    model.eval()
+    v_correct, v_total = 0, 0
+    with torch.no_grad():
+        for data, targets in val_loader:
+            data, targets = data.to(device), targets.to(device)
+            out = model(data); _, p = out.max(1); v_correct += (p == targets).sum().item(); v_total += targets.size(0)
+
+    val_acc = 100 * v_correct / v_total
+    print(f"Epoch {epoch+1:02d} | Val Acc: {val_acc:.2f}%")
+
+    if val_acc > best_val_acc:
+        best_val_acc = val_acc
+        model.cpu()
+        dummy_input = torch.randn(1, 64, 157)
+        torch.onnx.export(model, dummy_input, "best_welding_model.onnx", opset_version=17, do_constant_folding=True)
+        model.to(device)
+        print(f"⭐ Best Model Saved! ({best_val_acc:.2f}%)")
+
+model.cpu()
+torch.onnx.export(model, torch.randn(1, 64, 157), "final_welding_model.onnx", opset_version=17)
+print("✅ DONE: Both models saved and device-safe!")
