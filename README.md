@@ -35,19 +35,19 @@ The data pipeline follows a structured approach:
 ---
 
 ## 🔍 Classification Performance
-The model was trained and validated on a dataset of welding sounds, identifying the following conditions :
 
-| Defect Class | F1-Score | Description |
-| :--- | :--- | :--- |
-| **Porosity** | **0.98** | Gas trapped in the weld metal. |
-| **Good Weld** | 0.89 | A clean, defect-free weld. |
-| **Burn-through** | 0.86 | Excessive heat causing holes in the base metal. |
-| **Spatter** | 0.86 | Droplets of molten material splashing. |
-| **Excessive Penetration**| 0.84 | Weld metal protruding through the root. |
+The system achieved an **overall accuracy of 96.36%** using the Intel Robotic Welding Multimodal Dataset.
 
-* **Overall Accuracy:** 91.48%
-* **Macro F1-Score:** 0.8850
-* **Weighted F1-Score:** 0.89
+| Defect Class | Precision | Recall | F1-Score |
+| :--- | :--- | :--- | :--- |
+| **Porosity** | 0.991 | 0.991 | 0.991 |
+| **Good Weld** | 0.966 | 0.973 | 0.970 |
+| **Spatter** | 0.967 | 0.990 | 0.979 |
+| **Excessive Penetration** | 0.949 | 0.931 | 0.940 |
+| **Burn-through** | 0.934 | 0.922 | 0.928 |
+
+- **Macro Average F1:** 0.961 [cite: 261]
+- **Weighted Average F1:** 0.963 [cite: 261]
 
 ---
 
